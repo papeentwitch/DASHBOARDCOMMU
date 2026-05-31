@@ -4,6 +4,8 @@ const SUPABASE_KEY = "sb_publishable_Ul9Xek8TdT6e_2MR8srcTQ_yzn2qhYg";
 const $ = id => document.getElementById(id);
 let state = { games: [], ownership: [] };
 
+const IS_ADMIN = location.hash === "#admin-papeen";
+
 async function supabase(path, options = {}) {
   const res = await fetch(`${SUPABASE_REST}${path}`, {
     ...options,
@@ -19,6 +21,7 @@ async function supabase(path, options = {}) {
   if (!res.ok) {
     const txt = await res.text();
     console.error("Supabase error:", txt);
+    alert("Erreur Supabase : " + txt);
     throw new Error(txt);
   }
 
@@ -39,6 +42,8 @@ async function load() {
   state.ownership = possessions.map(p => {
     const game = state.games.find(g => g.id === p.game_id);
     return {
+      id: p.id,
+      game_id: p.game_id,
       name: game ? game.name : "",
       pseudo: p.pseudo
     };
@@ -61,13 +66,12 @@ function escapeHtml(s) {
 }
 
 function ownersFor(name) {
-  return state.ownership
-    .filter(o => o.name === name)
-    .map(o => o.pseudo);
+  return state.ownership.filter(o => o.name === name);
 }
 
 async function addGameToDb(name, platform = "PC") {
   name = clean(name);
+  platform = clean(platform) || "PC";
   if (!name) return;
 
   const existing = state.games.find(g => g.name.toLowerCase() === name.toLowerCase());
@@ -88,12 +92,13 @@ async function addGameToDb(name, platform = "PC") {
 
 async function ownGame(name, pseudo) {
   pseudo = clean(pseudo);
+
   if (!pseudo) {
     alert("Mets ton pseudo d’abord.");
     return;
   }
 
-  let game = state.games.find(g => g.name === name);
+  const game = state.games.find(g => g.name === name);
   if (!game) return;
 
   const already = state.ownership.find(o => o.name === name && o.pseudo === pseudo);
@@ -105,6 +110,28 @@ async function ownGame(name, pseudo) {
       game_id: game.id,
       pseudo
     })
+  });
+
+  await load();
+}
+
+async function removeOwnGame(name, pseudo) {
+  pseudo = clean(pseudo);
+
+  if (!pseudo) {
+    alert("Mets ton pseudo d’abord.");
+    return;
+  }
+
+  const own = state.ownership.find(o => o.name === name && o.pseudo === pseudo);
+
+  if (!own) {
+    alert("Ce pseudo n’est pas inscrit sur ce jeu.");
+    return;
+  }
+
+  await supabase(`/possessions?id=eq.${own.id}`, {
+    method: "DELETE"
   });
 
   await load();
@@ -143,24 +170,29 @@ function render() {
     node.querySelector(".platform").textContent = g.platforms || "PC";
 
     const owners = ownersFor(g.name);
+    const pseudo = clean($("pseudo") ? $("pseudo").value : "");
+    const userOwns = pseudo && owners.some(o => o.pseudo === pseudo);
+
     node.querySelector(".count").textContent = owners.length;
 
     node.querySelector(".owners").innerHTML = owners.length
-      ? owners.map(o => `<span class="chip">${escapeHtml(o)}</span>`).join("")
+      ? owners.map(o => `<span class="chip">${escapeHtml(o.pseudo)}</span>`).join("")
       : '<span class="chip">Personne pour le moment</span>';
 
     const btn = node.querySelector(".ownBtn");
-    const pseudo = clean($("pseudo") ? $("pseudo").value : "");
 
-    if (pseudo && owners.includes(pseudo)) {
-      btn.textContent = "Déjà ajouté";
+    if (userOwns) {
+      btn.textContent = "Retirer mon pseudo";
       btn.classList.add("owned");
+      btn.onclick = async () => {
+        await removeOwnGame(g.name, pseudo);
+      };
+    } else {
+      btn.textContent = "J’ai ce jeu";
+      btn.onclick = async () => {
+        await ownGame(g.name, clean($("pseudo").value));
+      };
     }
-
-    btn.onclick = async () => {
-      const pseudoNow = clean($("pseudo").value);
-      await ownGame(g.name, pseudoNow);
-    };
 
     grid.appendChild(node);
   }
@@ -182,16 +214,59 @@ function render() {
   }
 }
 
-if ($("seedGames")) {
-  $("seedGames").onclick = async () => {
-    const games = window.INITIAL_GAMES || [];
+async function importPlayniteCsv(file) {
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(Boolean);
 
-    for (const g of games) {
-      await addGameToDb(g.name, g.platforms || g.platform || "PC");
+  const headers = lines[0].split(";").map(h => h.trim().replace(/^"|"$/g, ""));
+  const nomIndex = headers.indexOf("Nom");
+  const plateformesIndex = headers.indexOf("Plateformes");
+
+  if (nomIndex === -1) {
+    alert("Colonne 'Nom' introuvable dans le CSV Playnite.");
+    return;
+  }
+
+  let count = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(";").map(c => c.trim().replace(/^"|"$/g, ""));
+    const name = cols[nomIndex];
+    const platform = plateformesIndex >= 0 ? cols[plateformesIndex] : "PC";
+
+    if (name) {
+      await addGameToDb(name, platform || "PC");
+      count++;
+    }
+  }
+
+  alert(count + " jeux importés depuis Playnite.");
+  await load();
+}
+
+function createAdminPanel() {
+  if (!IS_ADMIN) return;
+
+  const panel = document.createElement("section");
+  panel.className = "admin-panel";
+  panel.innerHTML = `
+    <h2>Administration PAPEEN</h2>
+    <p>Import CSV Playnite visible uniquement avec le lien admin.</p>
+    <input type="file" id="playniteCsvInput" accept=".csv">
+    <button id="importPlayniteCsvBtn">Importer le CSV Playnite</button>
+  `;
+
+  document.body.prepend(panel);
+
+  $("importPlayniteCsvBtn").onclick = async () => {
+    const file = $("playniteCsvInput").files[0];
+
+    if (!file) {
+      alert("Choisis d’abord ton fichier CSV Playnite.");
+      return;
     }
 
-    alert("Jeux importés.");
-    await load();
+    await importPlayniteCsv(file);
   };
 }
 
@@ -241,4 +316,5 @@ if ($("setupPanel")) {
   $("setupPanel").style.display = "none";
 }
 
+createAdminPanel();
 load();
