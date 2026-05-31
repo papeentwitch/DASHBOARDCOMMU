@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PAPEEN — Dashboard Jeux Communauté</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-glow"></div>
+  <header class="hero">
+    <img src="logo.png" alt="Logo PAPEEN" class="logo" />
+    <div>
+      <p class="eyebrow">Dashboard communautaire</p>
+      <h1>Qui a quel jeu ?</h1>
+      <p class="subtitle">Ajoute ton pseudo, coche tes jeux, trouve rapidement avec qui lancer une partie multi.</p>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel setup" id="setupPanel">
+      <h2>Configuration</h2>
+      <p>Colle ici l'URL de ton Google Apps Script. Tant que c'est vide, la page fonctionne en mode test sur ton navigateur uniquement.</p>
+      <div class="row">
+        <input id="scriptUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+        <button id="saveConfig">Sauver</button>
+      </div>
+      <button class="ghost" id="seedGames">Importer les jeux de départ dans Google Sheets</button>
+    </section>
+
+    <section class="panel controls">
+      <div class="identity">
+        <label>Ton pseudo</label>
+        <input id="pseudo" placeholder="Ex: PAPEEN" maxlength="28" />
+      </div>
+      <div class="identity">
+        <label>Recherche</label>
+        <input id="search" placeholder="Chercher un jeu..." />
+      </div>
+      <div class="identity">
+        <label>Plateforme</label>
+        <select id="platformFilter"><option value="">Toutes</option></select>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><span id="gameCount">0</span><small>jeux</small></div>
+      <div class="stat"><span id="playerCount">0</span><small>membres</small></div>
+      <div class="stat"><span id="ownedCount">0</span><small>possessions</small></div>
+    </section>
+
+    <section class="panel addgame">
+      <h2>Ajouter un jeu à proposer</h2>
+      <div class="row wrap">
+        <input id="newGame" placeholder="Nom du jeu" />
+        <input id="newPlatform" placeholder="Plateforme (Steam, Xbox, PS5...)" />
+        <button id="addGame">Ajouter</button>
+      </div>
+    </section>
+
+    <section class="panel discord-card" id="shareCard">
+      <h2>Top jeux de la commu</h2>
+      <div id="topGames"></div>
+      <button class="ghost" id="copyDiscord">Copier un résumé pour Discord</button>
+    </section>
+
+    <section class="grid" id="gamesGrid"></section>
+  </main>
+
+  <template id="gameTemplate">
+    <article class="game-card">
+      <div class="card-head">
+        <div>
+          <h3></h3>
+          <p class="platform"></p>
+        </div>
+        <div class="badge"><span class="count">0</span> joueurs</div>
+      </div>
+      <div class="owners"></div>
+      <button class="ownBtn">J'ai ce jeu</button>
+    </article>
+  </template>
+
+  <script src="initial-games.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
