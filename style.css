@@ -1,1 +1,110 @@
 *{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:#05070f;color:#f4fbff;min-height:100vh}.bg-glow{position:fixed;inset:0;background:radial-gradient(circle at 20% 0%,rgba(31,213,255,.22),transparent 35%),radial-gradient(circle at 90% 20%,rgba(0,100,255,.16),transparent 30%),linear-gradient(180deg,#07111f,#05070f);z-index:-1}.hero{max-width:1200px;margin:auto;padding:42px 22px 22px;display:flex;gap:28px;align-items:center}.logo{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 18px 28px #000)}.eyebrow{color:#30d8ff;text-transform:uppercase;letter-spacing:.18em;font-weight:800;font-size:12px}h1{font-size:clamp(36px,6vw,76px);line-height:.9;margin:0;text-transform:uppercase}.subtitle{font-size:18px;max-width:720px;color:#b6c9d7}.layout{max-width:1200px;margin:auto;padding:18px 22px 60px}.panel,.stat,.game-card{background:rgba(11,18,34,.78);border:1px solid rgba(94,218,255,.2);box-shadow:0 20px 50px rgba(0,0,0,.28);backdrop-filter:blur(14px);border-radius:24px}.panel{padding:22px;margin-bottom:18px}.setup{display:none}.setup.show{display:block}.controls,.row{display:flex;gap:14px;align-items:end}.identity{flex:1;display:flex;flex-direction:column;gap:8px}label{color:#8eeaff;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}input,select{width:100%;border:1px solid rgba(100,220,255,.3);background:#08101e;color:#fff;border-radius:14px;padding:14px 16px;font-size:15px;outline:none}button{border:0;border-radius:14px;padding:14px 18px;font-weight:900;cursor:pointer;color:#041018;background:linear-gradient(135deg,#35e4ff,#0ea5ff);box-shadow:0 10px 28px rgba(20,180,255,.28)}button.ghost{background:rgba(255,255,255,.08);color:#e7fbff;border:1px solid rgba(127,231,255,.25)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}.stat{padding:22px;text-align:center}.stat span{font-size:42px;font-weight:950;color:#35e4ff;display:block}.stat small{text-transform:uppercase;letter-spacing:.12em;color:#a9c1d0}.wrap{flex-wrap:wrap}.addgame input{min-width:220px;flex:1}.discord-card h2,.addgame h2,.setup h2{margin-top:0}.top-item{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:10px 0;color:#dff8ff}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}.game-card{padding:20px;transition:.2s transform,.2s border-color}.game-card:hover{transform:translateY(-4px);border-color:rgba(53,228,255,.55)}.card-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.game-card h3{font-size:20px;margin:0 0 7px}.platform{margin:0;color:#8fa6b7;font-size:13px}.badge{white-space:nowrap;background:rgba(48,216,255,.12);border:1px solid rgba(48,216,255,.28);color:#81eaff;border-radius:999px;padding:8px 10px;font-weight:900}.owners{min-height:48px;display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.chip{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:7px 10px;color:#e8f9ff;font-size:13px}.ownBtn{width:100%}.owned{background:linear-gradient(135deg,#a6ff6a,#28e7a2)!important}@media(max-width:720px){.hero{flex-direction:column;text-align:center}.logo{width:120px;height:120px}.controls,.row{flex-direction:column;align-items:stretch}.stats{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+/* ==========================================
+   ADMIN PANEL PAPEEN
+========================================== */
+
+.admin-panel{
+    max-width:1200px;
+    margin:0 auto 24px;
+    padding:24px;
+
+    background:rgba(11,18,34,.88);
+    border:1px solid rgba(94,218,255,.25);
+    border-radius:24px;
+
+    backdrop-filter:blur(14px);
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+
+.admin-panel h2{
+    margin-top:0;
+    color:#35e4ff;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+
+.admin-panel p{
+    color:#b6c9d7;
+    margin-bottom:18px;
+}
+
+.admin-panel input[type="file"]{
+    margin-bottom:12px;
+}
+
+.admin-panel button{
+    min-width:240px;
+}
+
+/* ==========================================
+   BOUTON RETIRER MON PSEUDO
+========================================== */
+
+.removeBtn{
+    width:100%;
+    margin-top:10px;
+
+    background:linear-gradient(
+        135deg,
+        #ff4d6d,
+        #ff2d55
+    );
+
+    color:#fff;
+}
+
+.removeBtn:hover{
+    filter:brightness(1.1);
+}
+
+/* ==========================================
+   BADGE ADMIN
+========================================== */
+
+.admin-badge{
+    display:inline-flex;
+    align-items:center;
+
+    padding:8px 14px;
+
+    border-radius:999px;
+
+    background:rgba(53,228,255,.12);
+    border:1px solid rgba(53,228,255,.25);
+
+    color:#35e4ff;
+
+    font-size:12px;
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+
+/* ==========================================
+   IMPORT CSV
+========================================== */
+
+#playniteCsvInput{
+    margin-right:12px;
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media(max-width:720px){
+
+    .admin-panel{
+        margin:16px;
+        padding:18px;
+    }
+
+    .admin-panel button{
+        width:100%;
+    }
+
+    #playniteCsvInput{
+        width:100%;
+        margin-bottom:12px;
+    }
+}
