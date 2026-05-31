@@ -32,9 +32,9 @@ async function load() {
 
   state.games = games.map(g => ({
     id: g.id,
-    name: g.name,
-    platforms: g.platform || "PC"
-  }));
+    name: g.Nom || g.name,
+    platforms: g.Plateformes || g.platform || "PC"
+  })).filter(g => g.name);
 
   state.ownership = possessions.map(p => {
     const game = state.games.find(g => g.id === p.game_id);
@@ -75,7 +75,12 @@ async function addGameToDb(name, platform = "PC") {
 
   const inserted = await supabase("/games", {
     method: "POST",
-    body: JSON.stringify({ name, platform })
+    body: JSON.stringify({
+      name,
+      platform,
+      Nom: name,
+      Plateformes: platform
+    })
   });
 
   return inserted[0];
