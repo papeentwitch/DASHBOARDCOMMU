@@ -223,11 +223,15 @@ async function importPlayniteCsv(file) {
   const headers = lines[0]
     .split(separator)
     .map(h => h.trim().replace(/^"|"$/g, ""));
+
   const nomIndex = headers.indexOf("Nom");
   const plateformesIndex = headers.indexOf("Plateformes");
 
   if (nomIndex === -1) {
-    alert("Colonne 'Nom' introuvable dans le CSV Playnite.");
+    alert(
+      "Colonne 'Nom' introuvable.\nColonnes trouvées :\n" +
+      headers.join(" | ")
+    );
     return;
   }
 
@@ -237,16 +241,24 @@ async function importPlayniteCsv(file) {
     const cols = lines[i]
       .split(separator)
       .map(c => c.trim().replace(/^"|"$/g, ""));
-    const name = cols[nomIndex];
-    const platform = plateformesIndex >= 0 ? cols[plateformesIndex] : "PC";
 
-    if (name) {
-      await addGameToDb(name, platform || "PC");
+    const name = cols[nomIndex];
+    const platform =
+      plateformesIndex >= 0
+        ? cols[plateformesIndex]
+        : "PC";
+
+    if (name && name.trim() !== "") {
+      await addGameToDb(
+        name.trim(),
+        platform || "PC"
+      );
+
       count++;
     }
   }
 
-  alert(count + " jeux importés depuis Playnite.");
+  alert(`${count} jeux importés depuis Playnite.`);
   await load();
 }
 
