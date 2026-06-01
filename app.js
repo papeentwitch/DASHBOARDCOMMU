@@ -218,7 +218,11 @@ async function importPlayniteCsv(file) {
   const text = await file.text();
   const lines = text.split(/\r?\n/).filter(Boolean);
 
-  const headers = lines[0].split(";").map(h => h.trim().replace(/^"|"$/g, ""));
+  const separator = lines[0].includes(";") ? ";" : ",";
+
+  const headers = lines[0]
+    .split(separator)
+    .map(h => h.trim().replace(/^"|"$/g, ""));
   const nomIndex = headers.indexOf("Nom");
   const plateformesIndex = headers.indexOf("Plateformes");
 
@@ -230,7 +234,9 @@ async function importPlayniteCsv(file) {
   let count = 0;
 
   for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(";").map(c => c.trim().replace(/^"|"$/g, ""));
+    const cols = lines[i]
+      .split(separator)
+      .map(c => c.trim().replace(/^"|"$/g, ""));
     const name = cols[nomIndex];
     const platform = plateformesIndex >= 0 ? cols[plateformesIndex] : "PC";
 
