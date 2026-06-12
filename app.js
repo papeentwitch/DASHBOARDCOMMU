@@ -156,12 +156,15 @@ function render() {
       ).join("");
   }
 
+  const sortPseudo = window.sortByPseudo || false;
+
   const shown = state.games
     .filter(g =>
       (!q || g.name.toLowerCase().includes(q)) &&
       (!pf || g.platforms === pf)
     )
     .sort((a, b) =>
+      sortPseudo ? ownersFor(a.name).map(x=>x.pseudo).join("").localeCompare(ownersFor(b.name).map(x=>x.pseudo).join("")) :
       ownersFor(b.name).length - ownersFor(a.name).length ||
       a.name.localeCompare(b.name)
     );
@@ -267,6 +270,76 @@ async function importPlayniteCsv(file) {
   await load();
 }
 
+
+async function updateUserCsv(file) {
+  const pseudo = clean($("pseudo").value);
+
+  if (!pseudo) {
+    alert("Mets ton pseudo avant d'importer tes jeux.");
+    return;
+  }
+
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  const separator = lines[0].includes(";") ? ";" : ",";
+  const headers = lines[0].split(separator).map(h => h.trim().replace(/^"|"$/g, ""));
+
+  const nomIndex = headers.indexOf("Nom");
+  if (nomIndex === -1) {
+    alert("Colonne Nom introuvable dans le CSV.");
+    return;
+  }
+
+  let added = 0;
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(separator).map(c => c.trim().replace(/^"|"$/g, ""));
+    const name = cols[nomIndex];
+
+    if (!name) continue;
+
+    let game = state.games.find(g => g.name.toLowerCase() === name.toLowerCase());
+
+    if (!game) {
+      game = await addGameToDb(name, "PC");
+      await load();
+    }
+
+    const exists = state.ownership.find(o => o.name === name && o.pseudo === pseudo);
+
+    if (!exists) {
+      await api("addPossession", {
+        game_id: game.id,
+        pseudo
+      });
+      added++;
+    }
+  }
+
+  alert(`${added} jeux ajoutés à ton profil. Aucun jeu supprimé.`);
+  await load();
+}
+
+function createUserCsvButton() {
+  const controls = $("search")?.closest(".controls");
+  if (!controls) return;
+
+  const box = document.createElement("div");
+  box.className = "identity";
+  box.innerHTML = `
+    <label>Mettre à jour mes jeux</label>
+    <input type="file" id="userCsvInput" accept=".csv">
+    <button id="updateUserCsvBtn">Importer mes jeux</button>
+  `;
+  controls.appendChild(box);
+
+  $("updateUserCsvBtn").onclick = async () => {
+    const file = $("userCsvInput").files[0];
+    if (!file) return alert("Choisis un CSV Playnite.");
+    await updateUserCsv(file);
+  };
+}
+
 function createAdminPanel() {
   if (!IS_ADMIN) return;
 
@@ -345,4 +418,5 @@ if ($("setupPanel")) {
 }
 
 createAdminPanel();
+createUserCsvButton();
 load();
